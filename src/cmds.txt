@@ -1,0 +1,141 @@
+﻿# Installation en mode service
+cd /opt
+sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+sudo yum install jenkins
+
+# Installation à partir d'un war executable
+curl -L -O http://mirrors.jenkins.io/war-stable/latest/jenkins.war 
+java -jar jenkins.war &
+
+curl -L -O http://mirrors.jenkins.io/war-stable/latest/jenkins.war 
+java -Djdk.http.auth.tunneling.disabledSchemes="" -Djdk.http.auth.proxying.disabledSchemes="" -jar jenkins.war
+ 
+#Arrêt / Relance
+sudo service jenkins start
+sudo service jenkins stop
+sudo service jenkins restart
+
+
+# Maven commad 
+mvn archetype:generate -DgroupId=fr.orsys.samples  -DartifactId=SampleProject -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+#GIT Commands
+
+cd $workspace/TP1/SampleProject
+git init
+git add .
+git commit -m "first commit"
+git remote add origin https://github.com/user-name/jenkins-sample.git
+git push -u origin master
+
+# Install java sous CentOS
+sudo yum install java-1.8.0-openjdk-devel
+
+# Installation Maven sous CentOS
+cd /opt
+wget http://mirrors.ircam.fr/pub/apache/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+tar -xf apache-maven-3.5.4-bin.tar.gz
+cd /opt/apache-maven-3.5.4/bin
+./mvn -version
+
+#Git installation
+yum install git
+git --version
+
+#Conf gmail
+
+Potential Cause #3
+Gmail may not allow access to non-Google apps citing security reasons. Change settings in Gmail's My Account->Sign-in & Security https://myaccount.google.com/security?utm_source=OGB&pli=1#connectedapps
+
+Switch to "Allow less secure apps: ON" which is Off by default
+
+#Blue ocean
+7db3da4d6bcdb21f37efa360320fe015aece1df9
+
+#Sonar
+wget -O /etc/yum.repos.d/sonar.repo http://downloads.sourceforge.net/project/sonar-pkg/rpm/sonar.repo
+yum -y install sonar
+
+# Nexus
+cd /opt
+wget http://download.sonatype.com/nexus/3/latest-unix.tar.gz
+tar xvf latest-unix.tar.gz -C /opt
+ln -s /opt/nexus-3.12.0-01/ /opt/nexus
+
+# Ajout de l’utilisateur nexus
+adduser nexus
+chown -R nexus:nexus /opt/nexus-3.14.0-04
+chown -R nexus:nexus /opt/sonatype-work
+
+#Lancement de nexus comme service
+vim /opt/nexus-3.14.0-04/bin/nexus.rc
+
+#Modifier run_as_user="nexus"
+ln -s /opt/nexus-3.14.0-04/bin/nexus /etc/init.d/nexus
+systemctl enable nexus
+
+#Démarrage de nexus
+systemctl start nexus
+Les logs sont disponible sous:
+vi sonatype-work/nexus3/log/nexus.log
+Url d’accès: http://localhost:8081/
+Login/mdp: admin/admin123
+
+#Pour l’arrêt
+systemctl stop nexus
+
+#Conf settings.xml
+
+ <servers>
+    <server>
+      <id>nexus-snapshots</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+    <server>
+      <id>nexus-releases</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+  </servers>
+  <mirrors>
+    <mirror>
+      <id>central</id>
+      <name>central</name>
+      <url>http://localhost:8081/repository/maven-public/</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+
+#Adaptation du pom.xml
+
+<repositories>
+	<repository>
+		<id>maven-group</id>
+		<url>http://localhost:8081/repository/maven-public/</url>
+	</repository>
+</repositories>
+<distributionManagement>
+	<snapshotRepository>
+		<id>nexus-snapshots</id>
+		<url>http://localhost:8081/repository/maven-snapshots/</url>
+	</snapshotRepository>
+	<repository>
+		<id>nexus-releases</id>
+		<url>http://localhost:8081/repository/maven-releases/</url>
+	</repository>
+</distributionManagement>
+</project>
+
+# Release
+
+<scm>
+	<connection>scm:git:https://github.com/username/jenkins-sample-1.git</connection>
+	<url>https://github.com/bnasslahsen/jenkins-sample-1</url>
+	<developerConnection>scm:git:https://github.com/bnasslahsen/jenkins-sample-1.git</developerConnection>
+     </scm>
+</project>
+
+
+
